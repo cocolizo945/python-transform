@@ -52,13 +52,15 @@ def connect_mysql():
 def connect_postgres():
     return psycopg2.connect(
         host=os.getenv("POSTGRES_HOST"),
+	port=os.getenv("POSTGRES_PORT"),
         user=os.getenv("POSTGRES_USER"),
         password=os.getenv("POSTGRES_PASSWORD"),
-        database=os.getenv("POSTGRES_DATABASE")
+        database="hospital"
     )
 
 # Transformación de datos
 def transform_data(row):
+    print(row)
     return {
         "id": row["id"],
         "tipo_atencion": TIPO_ATENCION.get(row["tipo_atencion"], "Desconocido"),
@@ -66,6 +68,18 @@ def transform_data(row):
         "destino_atencion": DESTINO_ATENCION.get(row["destino_atencion"], "Desconocido"),
         "detalle": row["detalle"]
     }
+
+def transformar_datos(valores, diccionario):
+    """
+    Convierte una lista de valores en sus descripciones correspondientes.
+    """
+    try:
+        # Manejar listas de valores como ["1", "2", "5"]
+        descripciones = [diccionario.get(v, f"Desconocido ({v})") for v in valores]
+        return ", ".join(descripciones)
+    except Exception as e:
+        logging.error(f"Error al transformar datos: {e}")
+        return "Error al transformar"
 
 # Proceso principal
 def main():
@@ -75,15 +89,15 @@ def main():
 
         with mysql_conn.cursor(dictionary=True) as mysql_cursor, postgres_conn.cursor() as postgres_cursor:
             # Obtener datos de MySQL
-            mysql_cursor.execute("SELECT * FROM ta")
+            mysql_cursor.execute("SELECT * FROM sima.violencia_lesiones_copia")
             rows = mysql_cursor.fetchall()
 
             # Transformar datos
-            transformed_data = [transform_data(row) for row in rows]
+            transformar_datos = [transform_data(row) for row in rows]
 
             # Insertar datos en PostgreSQL
             insert_query = """
-            INSERT INTO tabla_destino (id, tipo_atencion, tipo_violencia, destino_atencion, detalle)
+            INSERT INTO dataware.test (id, tipo_atencion, tipo_violencia, destino_atencion, detalle)
             VALUES %s
             ON CONFLICT (id) DO UPDATE SET
                 tipo_atencion = EXCLUDED.tipo_atencion,
