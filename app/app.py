@@ -115,7 +115,7 @@ def procesar_filas():
                              v.consecuenciaResultante, v.id_patient,v.updated_at, COALESCE(v.intencionalidadEvento, '[]') AS intencionalidadEvento,
                              COALESCE(v.tipoAtencion, '[]') AS tipoAtencion, COALESCE(v.tipoViolencia, '[]') AS tipoViolencia,
                              COALESCE(v.destinoAtencion, '[]') AS destinoAtencion, p.sexo, p.edad, p.seConsideraIndigena
-                             FROM sima.violencia_lesiones_copia v JOIN sima.patients p ON v.id_patient = p.id;""")  # Cambia 'tabla_origen' al nombre real
+                             FROM sima.violencia_lesiones v JOIN sima.patients p ON v.id_patient = p.id;""")  # Cambia 'tabla_origen' al nombre real
         filas = mysql_cursor.fetchall()
 
         # Conexión a PostgreSQL
@@ -164,7 +164,7 @@ def procesar_filas():
             seindigena = transformar_datos(eval(seConsideraIndigena), INDIGENA)
             destino = transformar_datos(eval(destino_raw), DESTINOS_ATENCION)
 
-            postgres_cursor.execute("SELECT id_control FROM dataware.nuevo_test WHERE id_control = %s", (str(id)))
+            postgres_cursor.execute("SELECT id_control FROM dataware.newdata WHERE id_control = %s", (str(id)))
             existing_record = postgres_cursor.fetchone()
             if not existing_record:
                 # Creamos una lista vacía para almacenar las asignaciones
@@ -301,7 +301,7 @@ def procesar_filas():
 
         # Inserción en PostgreSQL
         insert_query = """
-        INSERT INTO dataware.nuevo_test (id_control,fecha_evento,fecha_atencion,dia_festivo_des,agente_lesion_des, area_anatomica_des,
+        INSERT INTO dataware.newdata (id_control,fecha_evento,fecha_atencion,dia_festivo_des,agente_lesion_des, area_anatomica_des,
             intencionalidad_des, sitio_ocurrencia_des, entidad_ocurrencia_des, localidad_ocurrencia_des, municipio_ocurrencia_des,
             ministerio_publico_des, consecuencia_gravedad_des, sexo_des, edad, se_considera_indigena_des,
             tipo_atencion_1_des, tipo_atencion_2_des, tipo_atencion_3_des, tipo_atencion_4_des,
