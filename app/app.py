@@ -56,6 +56,21 @@ INTENCIONALIDAD = {
     "11": 'Trata de personas',
 }
 
+SEXO = {
+    "1": 'HOMBRE',
+    "2": 'MUJER',
+}
+
+INDIGENA = {
+    "1": 'SI',
+    "2": 'NO',
+}
+
+MINISTERIO = {
+    "1": 'SI',
+    "2": 'NO',
+}
+
 def transformar_datos(valores_raw, diccionario):
     """
     Convierte una lista de valores en sus descripciones correspondientes.
@@ -136,7 +151,6 @@ def procesar_filas():
             seConsideraIndigena = fila.get("seConsideraIndigena")
             updated_at = fila.get("updated_at")
 
-            seConsideraIndigena = fila.get("seConsideraIndigena")
             intencionalidad_raw = fila.get("intencionalidadEvento", "[]")
             tipo_atencion_raw = fila.get("tipoAtencion", "[]")
             tipo_violencia_raw = fila.get("tipoViolencia", "[]")
@@ -145,6 +159,9 @@ def procesar_filas():
             intencionalidad = transformar_datos(eval(intencionalidad_raw), INTENCIONALIDAD)
             tipo_atencion = transformar_datos(eval(tipo_atencion_raw), TIPOS_ATENCION)
             tipo_violencia = transformar_datos(eval(tipo_violencia_raw), TIPOS_VIOLENCIA)
+            sexo_t = transformar_datos(eval(sexo), SEXO)
+            ministerio = transformar_datos(eval(ministerioPublico), MINISTERIO)
+            seindigena = transformar_datos(eval(seConsideraIndigena), INDIGENA)
             destino = transformar_datos(eval(destino_raw), DESTINOS_ATENCION)
 
             postgres_cursor.execute("SELECT id_control FROM dataware.nuevo_test WHERE id_control = %s", (str(id)))
@@ -230,11 +247,11 @@ def procesar_filas():
                     "entidadFed":entidadFed,
                     "municipio":municipio,
                     "localidad":localidad,
-                    "ministerioPublico":ministerioPublico,
+                    "ministerioPublico":ministerio[0],
                     "consecuenciaResultante":consecuenciaResultante,
-                    "sexo":sexo,
+                    "sexo":sexo_t[0],
                     "edad":edad,
-                    "seConsideraIndigena":seConsideraIndigena,
+                    "seConsideraIndigena":seindigena[0],
                     "intencionalidad": intencionalidad[0],
                     "tipo_atencion_1_des": tipo_atencion_assigned[0],
                     "tipo_atencion_2_des": tipo_atencion_assigned[1],
